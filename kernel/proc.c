@@ -55,6 +55,7 @@ procinit(void)
       initlock(&p->lock, "proc");
       p->state = UNUSED;
       p->kstack = KSTACK((int) (p - proc));
+      p->trace = 0;
   }
 }
 
@@ -124,6 +125,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->trace = 0;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -169,6 +171,7 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+  p->trace = 0;
 }
 
 // Create a user page table for a given process, with no user memory,
@@ -311,6 +314,8 @@ fork(void)
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
+
+  np->trace = p->trace;
 
   release(&np->lock);
 

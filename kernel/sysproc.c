@@ -16,6 +16,14 @@ sys_exit(void)
 }
 
 uint64
+sys_trace(void) {
+  int n;
+  argint(0, &n);
+  myproc()->trace = n;
+  return 0;
+}
+
+uint64
 sys_getpid(void)
 {
   return myproc()->pid;
