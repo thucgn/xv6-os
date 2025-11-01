@@ -272,11 +272,10 @@ static void vmprint_impl(pagetable_t pagetable, int level, const char* prefixs[]
     pte_t pte = pagetable[i];
     if(!(pte & PTE_V))
       continue;
-    printf("%s%d: pte 0x%p pa 0x%p\n", prefix, i, pte, PTE2PA(pte));
+    printf("%s%d: pte %p pa %p\n", prefix, i, pte, PTE2PA(pte));
     if(level > 0) 
       vmprint_impl((pagetable_t)PTE2PA(pte), level-1, prefixs);
   }
-    
 }
 
 void vmprint(pagetable_t pagetable) {
@@ -284,7 +283,7 @@ void vmprint(pagetable_t pagetable) {
     panic("error pagetable");
   
   const char* prefixs[] = {".. .. ..", ".. ..", ".."};
-  printf("page table 0x%016x\n", pagetable);
+  printf("page table %p\n", pagetable);
   vmprint_impl(pagetable, 2, prefixs);
 }
 
