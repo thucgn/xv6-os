@@ -266,6 +266,28 @@ uvmdealloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz)
   return newsz;
 }
 
+static void vmprint_impl(pagetable_t pagetable, int level, const char* prefixs[]) {
+  const char* prefix = prefixs[level];
+  for(int i = 0;i < PGSIZE / sizeof(pte_t); i ++) {
+    pte_t pte = pagetable[i];
+    if(!(pte & PTE_V))
+      continue;
+    printf("%s%d: pte 0x%p pa 0x%p\n", prefix, i, pte, PTE2PA(pte));
+    if(level > 0) 
+      vmprint_impl((pagetable_t)PTE2PA(pte), level-1, prefixs);
+  }
+    
+}
+
+void vmprint(pagetable_t pagetable) {
+  if(!pagetable)
+    panic("error pagetable");
+  
+  const char* prefixs[] = {".. .. ..", ".. ..", ".."};
+  printf("page table 0x%016x\n", pagetable);
+  vmprint_impl(pagetable, 2, prefixs);
+}
+
 // Recursively free page-table pages.
 // All leaf mappings must already have been removed.
 void
