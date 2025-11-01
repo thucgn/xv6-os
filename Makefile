@@ -93,6 +93,9 @@ LABUPPER = $(shell echo $(LAB) | tr a-z A-Z)
 XCFLAGS += -DSOL_$(LABUPPER) -DLAB_$(LABUPPER)
 endif
 
+#just enable labs
+XCFLAGS += -DLAB_UTIL -DLAB_SYSCALL -DLAB_PGTBL
+
 CFLAGS += $(XCFLAGS)
 CFLAGS += -MD
 CFLAGS += -mcmodel=medany
