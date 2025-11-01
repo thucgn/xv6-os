@@ -12,6 +12,35 @@ int
 sys_pgaccess(void)
 {
   // lab pgtbl: your code here.
+  uint64 base;
+  int n; // num pages
+  uint64 mask;
+  argaddr(0, &base);
+  argint(1, &n);
+  argaddr(2, &mask);
+
+  if(n > MAX_ACCESS_NPAGES)
+    panic("pgaccess: too many pages");
+
+  pte_t* ppte;
+
+  uint64 tmp_mask[MAX_ACCESS_NPAGES / 64] = {0};
+
+  pagetable_t pagetable = myproc()->pagetable;
+  // setting bit of accessed page to 1
+  #define SET_MASK_BIT(m) tmp_mask[(m)/64] |= (1L << ((m) & 0x1F))
+  for(uint64 va = base; va < base + n*PGSIZE; va += PGSIZE) {
+    if((ppte = walk(pagetable, va, 0)) == 0)
+      return -1; // error virtual address
+    if((*ppte & PTE_V) && (*ppte & PTE_A) && (*ppte & PTE_U)) {
+      SET_MASK_BIT((va-base)/PGSIZE);
+      *ppte &= ~PTE_A; // clear access bit
+    }
+  }
+  #undef SET_MASK_BIT
+
+  copyout(pagetable, mask, (char*)tmp_mask, (n+7)/8);
+
   return 0;
 }
 #endif
