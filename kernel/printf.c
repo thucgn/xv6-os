@@ -115,6 +115,25 @@ printf(char *fmt, ...)
     release(&pr.lock);
 }
 
+void backtrace() {
+  uint64 fp = r_fp();
+  // arch of stack
+  /* 8: return address // no need for simple func which don't use ra 
+   * 8: old frame pointer
+   * X: saved registers
+   * X: local variables
+  */
+  printf("backtrace:\n");
+  const uint64 stack_high = PGROUNDUP(fp);
+  const uint64 stack_low = PGROUNDDOWN(fp);
+  uint64 ra; 
+  while(fp >= stack_low && fp < stack_high) {
+    ra = *(uint64*)(fp-8);
+    printf("%p\n", ra); 
+    fp = *(uint64*)(fp-16);
+  }
+}
+
 void
 panic(char *s)
 {
@@ -122,6 +141,7 @@ panic(char *s)
   printf("panic: ");
   printf(s);
   printf("\n");
+  backtrace();
   panicked = 1; // freeze uart output from other CPUs
   for(;;)
     ;

@@ -327,6 +327,15 @@ sfence_vma()
   asm volatile("sfence.vma zero, zero");
 }
 
+// get the current frame pointer
+static inline uint64
+r_fp()
+{
+  uint64 fp;
+  asm volatile("mv %0, s0" : "=r"(fp));
+  return fp;
+}
+
 typedef uint64 pte_t;
 typedef uint64 *pagetable_t; // 512 PTEs
 
